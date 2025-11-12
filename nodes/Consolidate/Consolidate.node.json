@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://demo.consi.cloud/graphql/"
+				"url": "https://community.consolidate.eu/t/consolidate-api-authentifizierung"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://demo.consi.cloud/graphql/"
+				"url": "https://community.consolidate.eu/t/consolidate-api-ueberblick"
 			}
 		]
 	}

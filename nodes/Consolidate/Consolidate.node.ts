@@ -7,13 +7,13 @@ import type {
 	ResourceMapperValue,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { consolidateApiCall } from './helpers/GenericFunctions';
 import { APPOINTMENT_FRAGMENTS, DATA_ENTRY_FRAGMENTS, EMAIL_FRAGMENTS } from './helpers/Fragments';
-import { dataEntryFields, dataEntryOperations } from './DataEntryDescription';
-import { emailFields, emailOperations } from './EmailDescription';
-import { appointmentFields, appointmentOperations } from './AppointmentDescription';
+import { dataEntryFields, dataEntryOperations } from './actions/DataEntryDescription';
+import { emailFields, emailOperations } from './actions/EmailDescription';
+import { appointmentFields, appointmentOperations } from './actions/AppointmentDescription';
 import { FieldMetaData, FieldValueType, getFieldValue } from './helpers/DataEntryUtils';
 import { loadOptions, resourceMapping } from './methods';
+import { apiRequest } from './transport';
 
 export class Consolidate implements INodeType {
 	description: INodeTypeDescription = {
@@ -115,7 +115,7 @@ export class Consolidate implements INodeType {
 						variables: { id },
 					};
 
-					data = (await consolidateApiCall.call(this, body)).data.dataEntry;
+					data = (await apiRequest.call(this, body)).data.dataEntry;
 				}
 
 				if (operation === 'search') {
@@ -152,7 +152,7 @@ export class Consolidate implements INodeType {
 						${APPOINTMENT_FRAGMENTS}`,
 						variables: { search, dataCollectionHint, skip, take },
 					};
-					data = (await consolidateApiCall.call(this, body)).data.globalSearch.items;
+					data = (await apiRequest.call(this, body)).data.globalSearch.items;
 				}
 
 				if (operation === 'create') {
@@ -203,7 +203,7 @@ export class Consolidate implements INodeType {
 						} ${DATA_ENTRY_FRAGMENTS}`,
 						variables,
 					};
-					data = (await consolidateApiCall.call(this, body)).data.createDataEntry.dataEntry;
+					data = (await apiRequest.call(this, body)).data.createDataEntry.dataEntry;
 				}
 
 				if (operation === 'update') {
@@ -256,7 +256,7 @@ export class Consolidate implements INodeType {
 						},
 					};
 
-					const gqlRes = await consolidateApiCall.call(this, { query, variables });
+					const gqlRes = await apiRequest.call(this, { query, variables });
 					const data = (gqlRes?.data ?? gqlRes)?.updateDataEntries.dataEntry;
 					if (!data) {
 						throw new NodeOperationError(this.getNode(), 'Error while updating the data entry.');
@@ -282,7 +282,7 @@ export class Consolidate implements INodeType {
 
 					const variables = { input: { ids } };
 
-					const gqlRes = await consolidateApiCall.call(this, { query, variables });
+					const gqlRes = await apiRequest.call(this, { query, variables });
 					const data = (gqlRes?.data ?? gqlRes)?.deleteDataEntriesPermanently;
 
 					const exec = this.helpers.constructExecutionMetaData(
@@ -296,7 +296,7 @@ export class Consolidate implements INodeType {
 					const document = this.getNodeParameter('gql', i) as string;
 					const variablesRaw = this.getNodeParameter('variables', i) as string;
 
-					const gqlRes = await consolidateApiCall.call(this, {
+					const gqlRes = await apiRequest.call(this, {
 						query: document,
 						variables: JSON.parse(variablesRaw),
 					});
@@ -366,7 +366,7 @@ export class Consolidate implements INodeType {
 					}`,
 					variables,
 				};
-				data = (await consolidateApiCall.call(this, body)).data.sendEmail;
+				data = (await apiRequest.call(this, body)).data.sendEmail;
 			}
 
 			if (resource === 'appointment') {
@@ -435,7 +435,7 @@ export class Consolidate implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await consolidateApiCall.call(this, body)).data.createCalendarEvent.calendarEventInstance;
+					data = (await apiRequest.call(this, body)).data.createCalendarEvent.calendarEventInstance;
 				}
 
 				if (operation === 'update') {
@@ -530,7 +530,7 @@ export class Consolidate implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await consolidateApiCall.call(this, body)).data.updateCalendarEvent.calendarEventInstance;
+					data = (await apiRequest.call(this, body)).data.updateCalendarEvent.calendarEventInstance;
 				}
 
 				if (operation === 'delete') {
@@ -548,7 +548,7 @@ export class Consolidate implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await consolidateApiCall.call(this, body)).data.deleteCalendarEvent;
+					data = (await apiRequest.call(this, body)).data.deleteCalendarEvent;
 				}
 			}
 

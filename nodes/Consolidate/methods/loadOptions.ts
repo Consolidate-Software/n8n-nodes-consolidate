@@ -1,6 +1,7 @@
 import { ILoadOptionsFunctions, INodePropertyOptions, IDataObject } from 'n8n-workflow';
-import { consolidateApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
+import { getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import { timezones } from '../helpers/TimeZones';
+import { apiRequest } from '../transport';
 
 // Fetch calendars where the user can create appointments.
 export async function getCalendars(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
@@ -14,7 +15,7 @@ export async function getCalendars(this: ILoadOptionsFunctions): Promise<INodePr
                 }
             }`;
 
-	const result = (await consolidateApiCall.call(this, { query })) as {
+	const result = (await apiRequest.call(this, { query })) as {
 		data?: {
 			calendars?: {
 				id: string;
@@ -48,7 +49,7 @@ export async function getDataCollections(
             }`,
 	};
 
-	const result = (await consolidateApiCall.call(this, formsBody)) as {
+	const result = (await apiRequest.call(this, formsBody)) as {
 		data?: { dataForms?: { dataCollection: string; displayName: string }[] };
 	};
 
@@ -70,7 +71,7 @@ export async function getDataCollectionsGlobalSearch(
             }`,
 	};
 
-	const result = (await consolidateApiCall.call(this, formsBody)) as {
+	const result = (await apiRequest.call(this, formsBody)) as {
 		data?: { dataForms?: { dataCollection: string; displayName: string }[] };
 	};
 
@@ -97,7 +98,7 @@ export async function getInvitableUsers(
             }`,
 	};
 
-	const result = (await consolidateApiCall.call(this, body)) as {
+	const result = (await apiRequest.call(this, body)) as {
 		data?: {
 			invitableUsers?: {
 				id: string;
@@ -123,7 +124,7 @@ export async function getMailboxes(this: ILoadOptionsFunctions): Promise<INodePr
             }`,
 	};
 
-	const result = (await consolidateApiCall.call(this, body)) as {
+	const result = (await apiRequest.call(this, body)) as {
 		data?: {
 			myMailboxes?: {
 				id: string;
@@ -160,7 +161,7 @@ export async function getMailboxAliases(
 		variables: { id: mailboxId },
 	};
 
-	const result = (await consolidateApiCall.call(this, body)) as {
+	const result = (await apiRequest.call(this, body)) as {
 		data?: { mailbox?: { aliases?: { email: string }[] } };
 	};
 
@@ -204,7 +205,7 @@ export async function getTypes(this: ILoadOptionsFunctions): Promise<INodeProper
 		variables: { dataCollection: dataCollection.trim() },
 	};
 
-	const result = (await consolidateApiCall.call(this, body)) as {
+	const result = (await apiRequest.call(this, body)) as {
 		data?: {
 			dataForm?: { types?: { key: string; displayName: string }[] };
 		};

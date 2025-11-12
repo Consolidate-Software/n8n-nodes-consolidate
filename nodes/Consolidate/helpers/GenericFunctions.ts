@@ -1,49 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type {
 	IDataObject,
 	IExecuteFunctions,
 	IHookFunctions,
-	IHttpRequestOptions,
 	ILoadOptionsFunctions,
 	IWebhookFunctions,
-	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError } from 'n8n-workflow';
-
-export async function consolidateApiCall(
-	this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
-	body: IDataObject,
-): Promise<any> {
-	const baseUrl = (await this.getCredentials('consolidateApi'))?.baseUrl as string;
-
-	const options: IHttpRequestOptions = {
-		method: 'POST',
-		url: `${baseUrl.replace(/\/+$/, '')}/graphql`,
-		json: true,
-		body,
-		headers: { 'Content-Type': 'application/json' },
-	};
-
-	try {
-		const res = await this.helpers.httpRequestWithAuthentication.call(this, 'consolidateApi', options);
-
-		if (res && Array.isArray(res.errors) && res.errors.length) {
-			const msg = res.errors
-				.map((e: { message: string }) => e?.message)
-				.filter(Boolean)
-				.join('; ');
-
-			throw new NodeOperationError(this.getNode(), msg || 'GraphQL error', {
-				description: JSON.stringify(res.errors, null, 2),
-			});
-		}
-
-		return res;
-	} catch (error) {
-		throw new NodeApiError(this.getNode(), error as JsonObject);
-	}
-}
+import { apiRequest } from '../transport';
 
 export async function getDataCollectionFromDataEntryId(
 	this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
@@ -66,7 +29,7 @@ export async function getDataCollectionFromDataEntryId(
 		variables: { id },
 	};
 
-	return (await consolidateApiCall.call(this, body)).data.dataEntry.dataCollection;
+	return (await apiRequest.call(this, body)).data.dataEntry.dataCollection;
 }
 
 export function eventsExist(eventTypes: string[], currentEventTypes: string[]) {
@@ -81,7 +44,7 @@ export function eventsExist(eventTypes: string[], currentEventTypes: string[]) {
 const WEBHOOK_TOLERANCE_IN_SECONDS = 5 * 60; // 5 minutes
 
 class ExtendableError extends Error {
-	constructor(message: any) {
+	constructor(message: string) {
 		super(message);
 		Object.setPrototypeOf(this, ExtendableError.prototype);
 		this.name = 'ExtendableError';

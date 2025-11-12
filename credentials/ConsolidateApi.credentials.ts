@@ -13,7 +13,7 @@ export class ConsolidateApi implements ICredentialType {
 
 	icon: Icon = 'file:consolidate.svg';
 
-	documentationUrl = 'https://community.consolidate.eu/t/api-authentifizierung';
+	documentationUrl = 'https://community.consolidate.eu/t/consolidate-api-authentifizierung';
 
 	properties: INodeProperties[] = [
 		{

@@ -1,5 +1,5 @@
 import { IDataObject, ILoadOptionsFunctions, ResourceMapperFields } from 'n8n-workflow';
-import { consolidateApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
+import { getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import {
 	FieldMetaData,
 	DataForm,
@@ -7,6 +7,7 @@ import {
 	isListArrayValue,
 	mapFieldTypesToN8n,
 } from '../helpers/DataEntryUtils';
+import { apiRequest } from '../transport';
 
 function getUniqueFields(result: { data?: { dataForm?: DataForm } }, typeIds: string[]) {
 	const typeAdditionalFields = (result.data?.dataForm?.types ?? [])
@@ -105,7 +106,7 @@ export async function getMappingColumns(
 		variables: { dataCollection },
 	};
 
-	const result = (await consolidateApiCall.call(this, dataFormBody)) as {
+	const result = (await apiRequest.call(this, dataFormBody)) as {
 		data?: {
 			dataForm?: DataForm;
 		};

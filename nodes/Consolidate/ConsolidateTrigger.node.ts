@@ -6,7 +6,8 @@ import type {
 	IWebhookResponseData,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { consolidateApiCall, eventsExist, Webhook } from './helpers/GenericFunctions';
+import { eventsExist, Webhook } from './helpers/GenericFunctions';
+import { apiRequest } from './transport';
 
 export class ConsolidateTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -94,7 +95,7 @@ export class ConsolidateTrigger implements INodeType {
                         }
                     }`;
 
-				const responseData = await consolidateApiCall.call(this, { query });
+				const responseData = await apiRequest.call(this, { query });
 				const existing = Array.isArray(responseData?.data.webhooks)
 					? responseData.data.webhooks
 					: [];
@@ -141,7 +142,7 @@ export class ConsolidateTrigger implements INodeType {
 
 				const variables = { input: { name, url: webhookUrl, eventTypes: events } };
 
-				const responseData = await consolidateApiCall.call(this, { query, variables });
+				const responseData = await apiRequest.call(this, { query, variables });
 
 				const id = responseData.data.createWebhook.webhookSubscription.id;
 
@@ -168,7 +169,7 @@ export class ConsolidateTrigger implements INodeType {
 
 					const variables = { input: { id: webhookData.webhookId } };
 
-					const responseData = await consolidateApiCall.call(this, { query, variables });
+					const responseData = await apiRequest.call(this, { query, variables });
 
 					if (!responseData.success) {
 						return false;
