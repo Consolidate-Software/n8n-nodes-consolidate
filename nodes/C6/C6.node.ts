@@ -13,7 +13,6 @@ import { dataEntryFields, dataEntryOperations } from './DataEntryDescription';
 import { emailFields, emailOperations } from './EmailDescription';
 import { appointmentFields, appointmentOperations } from './AppointmentDescription';
 import { C6MetaData, FieldValueType, getC6FieldValue } from './helpers/DataEntryUtils';
-// eslint-disable-next-line import-x/no-unresolved
 import { loadOptions, resourceMapping } from './methods';
 
 export class C6 implements INodeType {
