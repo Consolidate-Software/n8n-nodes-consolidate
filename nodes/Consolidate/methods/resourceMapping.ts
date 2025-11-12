@@ -1,11 +1,11 @@
 import { IDataObject, ILoadOptionsFunctions, ResourceMapperFields } from 'n8n-workflow';
-import { c6ApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
+import { consolidateApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import {
-	C6MetaData,
+	FieldMetaData,
 	DataForm,
 	getOptions,
 	isListArrayValue,
-	mapC6TypesToN8n,
+	mapFieldTypesToN8n,
 } from '../helpers/DataEntryUtils';
 
 function getUniqueFields(result: { data?: { dataForm?: DataForm } }, typeIds: string[]) {
@@ -105,7 +105,7 @@ export async function getMappingColumns(
 		variables: { dataCollection },
 	};
 
-	const result = (await c6ApiCall.call(this, dataFormBody)) as {
+	const result = (await consolidateApiCall.call(this, dataFormBody)) as {
 		data?: {
 			dataForm?: DataForm;
 		};
@@ -128,13 +128,13 @@ export async function getMappingColumns(
 					key: field.key,
 					valueType: field.valueType,
 					selectionType: field.selectionType,
-				} as C6MetaData),
+				} as FieldMetaData),
 				displayName:
 					field.selectionType === 'Single' ? field.label : `${field.label} (list - ${isListLabel})`,
 				defaultMatch: field.key === 'id',
 				required: Boolean(field.required),
 				display: true,
-				type: mapC6TypesToN8n(field.valueType, field.selectionType),
+				type: mapFieldTypesToN8n(field.valueType, field.selectionType),
 				options: getOptions(field, uniqueStatuses),
 			};
 		});

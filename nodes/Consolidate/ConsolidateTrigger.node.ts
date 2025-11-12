@@ -6,13 +6,13 @@ import type {
 	IWebhookResponseData,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { c6ApiCall, eventsExist, Webhook } from './helpers/GenericFunctions';
+import { consolidateApiCall, eventsExist, Webhook } from './helpers/GenericFunctions';
 
-export class C6Trigger implements INodeType {
+export class ConsolidateTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Consolidate Trigger',
-		name: 'c6Trigger',
-		icon: 'file:c6.svg',
+		name: 'consolidateTrigger',
+		icon: 'file:consolidate.svg',
 		group: ['trigger'],
 		version: 1,
 		usableAsTool: true,
@@ -24,7 +24,7 @@ export class C6Trigger implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
-				name: 'c6Api',
+				name: 'consolidateApi',
 				required: true,
 			},
 		],
@@ -94,7 +94,7 @@ export class C6Trigger implements INodeType {
                         }
                     }`;
 
-				const responseData = await c6ApiCall.call(this, { query });
+				const responseData = await consolidateApiCall.call(this, { query });
 				const existing = Array.isArray(responseData?.data.webhooks)
 					? responseData.data.webhooks
 					: [];
@@ -141,7 +141,7 @@ export class C6Trigger implements INodeType {
 
 				const variables = { input: { name, url: webhookUrl, eventTypes: events } };
 
-				const responseData = await c6ApiCall.call(this, { query, variables });
+				const responseData = await consolidateApiCall.call(this, { query, variables });
 
 				const id = responseData.data.createWebhook.webhookSubscription.id;
 
@@ -168,7 +168,7 @@ export class C6Trigger implements INodeType {
 
 					const variables = { input: { id: webhookData.webhookId } };
 
-					const responseData = await c6ApiCall.call(this, { query, variables });
+					const responseData = await consolidateApiCall.call(this, { query, variables });
 
 					if (!responseData.success) {
 						return false;

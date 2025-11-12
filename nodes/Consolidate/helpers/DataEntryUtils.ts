@@ -1,6 +1,6 @@
 import { FieldType } from 'n8n-workflow';
 
-export type C6MetaData = {
+export type FieldMetaData = {
 	key: string;
 	valueType: string;
 	selectionType: 'List' | 'Single';
@@ -102,7 +102,7 @@ function getValueAsArray(value: ResourceMapperValue, valueType: FieldValueType):
 	}
 }
 
-export function getC6FieldValue(
+export function getFieldValue(
 	value: ResourceMapperValue,
 	valueType: FieldValueType,
 	selectionType: 'List' | 'Single',
@@ -181,15 +181,15 @@ export function getC6FieldValue(
 	}
 }
 
-export function mapC6TypesToN8n(
-	c6Type: FieldValueType,
+export function mapFieldTypesToN8n(
+	fieldType: FieldValueType,
 	selectionType: 'List' | 'Single',
 ): FieldType {
-	if (selectionType === 'List' && isListArrayValue(c6Type)) {
+	if (selectionType === 'List' && isListArrayValue(fieldType)) {
 		return 'array';
 	}
 
-	switch (c6Type.toLowerCase()) {
+	switch (fieldType.toLowerCase()) {
 		case 'text':
 		case 'richtext':
 		case 'emailaddress':

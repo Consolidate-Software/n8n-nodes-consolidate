@@ -31,10 +31,11 @@
         "n8nNodesApiVersion": 1,
         "strict": true,
         "credentials": [
-            "dist/credentials/C6Api.credentials.js"
+            "dist/credentials/ConsolidateApi.credentials.js"
         ],
         "nodes": [
-            "dist/nodes/C6/C6.node.js"
+            "dist/nodes/Consolidate/Consolidate.node.js",
+            "dist/nodes/Consolidate/ConsolidateTrigger.node.js"
         ]
     },
     "devDependencies": {

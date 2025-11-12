@@ -7,19 +7,19 @@ import type {
 	ResourceMapperValue,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { c6ApiCall } from './helpers/GenericFunctions';
-import { APPOINTMENT_FRAGMENTS, DATA_ENTRY_FRAGMENTS, EMAIL_FRAGMENTS } from './Fragments';
+import { consolidateApiCall } from './helpers/GenericFunctions';
+import { APPOINTMENT_FRAGMENTS, DATA_ENTRY_FRAGMENTS, EMAIL_FRAGMENTS } from './helpers/Fragments';
 import { dataEntryFields, dataEntryOperations } from './DataEntryDescription';
 import { emailFields, emailOperations } from './EmailDescription';
 import { appointmentFields, appointmentOperations } from './AppointmentDescription';
-import { C6MetaData, FieldValueType, getC6FieldValue } from './helpers/DataEntryUtils';
+import { FieldMetaData, FieldValueType, getFieldValue } from './helpers/DataEntryUtils';
 import { loadOptions, resourceMapping } from './methods';
 
-export class C6 implements INodeType {
+export class Consolidate implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Consolidate',
-		name: 'c6',
-		icon: 'file:c6.svg',
+		name: 'consolidate',
+		icon: 'file:consolidate.svg',
 		group: ['output'],
 		version: 1,
 		subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
@@ -30,7 +30,7 @@ export class C6 implements INodeType {
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
-		credentials: [{ name: 'c6Api', required: true }],
+		credentials: [{ name: 'consolidateApi', required: true }],
 		requestDefaults: {
 			baseURL: '={{ $credentials.baseUrl }}',
 			url: '/graphql',
@@ -115,7 +115,7 @@ export class C6 implements INodeType {
 						variables: { id },
 					};
 
-					data = (await c6ApiCall.call(this, body)).data.dataEntry;
+					data = (await consolidateApiCall.call(this, body)).data.dataEntry;
 				}
 
 				if (operation === 'search') {
@@ -152,7 +152,7 @@ export class C6 implements INodeType {
 						${APPOINTMENT_FRAGMENTS}`,
 						variables: { search, dataCollectionHint, skip, take },
 					};
-					data = (await c6ApiCall.call(this, body)).data.globalSearch.items;
+					data = (await consolidateApiCall.call(this, body)).data.globalSearch.items;
 				}
 
 				if (operation === 'create') {
@@ -165,8 +165,8 @@ export class C6 implements INodeType {
 
 					const rawFieldValues = Object.entries(fieldsUi.value);
 					const fields = rawFieldValues.map(([rawKey, value]) => {
-						const meta = JSON.parse(rawKey) as C6MetaData;
-						const fieldValue = getC6FieldValue(
+						const meta = JSON.parse(rawKey) as FieldMetaData;
+						const fieldValue = getFieldValue(
 							value,
 							meta.valueType as FieldValueType,
 							meta.selectionType,
@@ -203,7 +203,7 @@ export class C6 implements INodeType {
 						} ${DATA_ENTRY_FRAGMENTS}`,
 						variables,
 					};
-					data = (await c6ApiCall.call(this, body)).data.createDataEntry.dataEntry;
+					data = (await consolidateApiCall.call(this, body)).data.createDataEntry.dataEntry;
 				}
 
 				if (operation === 'update') {
@@ -224,8 +224,8 @@ export class C6 implements INodeType {
 
 					const rawFieldValues = Object.entries(fieldsUi.value);
 					const fields = rawFieldValues.map(([rawKey, value]) => {
-						const meta = JSON.parse(rawKey) as C6MetaData;
-						const fieldValue = getC6FieldValue(
+						const meta = JSON.parse(rawKey) as FieldMetaData;
+						const fieldValue = getFieldValue(
 							value,
 							meta.valueType as FieldValueType,
 							meta.selectionType,
@@ -256,7 +256,7 @@ export class C6 implements INodeType {
 						},
 					};
 
-					const gqlRes = await c6ApiCall.call(this, { query, variables });
+					const gqlRes = await consolidateApiCall.call(this, { query, variables });
 					const data = (gqlRes?.data ?? gqlRes)?.updateDataEntries.dataEntry;
 					if (!data) {
 						throw new NodeOperationError(this.getNode(), 'Error while updating the data entry.');
@@ -282,7 +282,7 @@ export class C6 implements INodeType {
 
 					const variables = { input: { ids } };
 
-					const gqlRes = await c6ApiCall.call(this, { query, variables });
+					const gqlRes = await consolidateApiCall.call(this, { query, variables });
 					const data = (gqlRes?.data ?? gqlRes)?.deleteDataEntriesPermanently;
 
 					const exec = this.helpers.constructExecutionMetaData(
@@ -296,7 +296,7 @@ export class C6 implements INodeType {
 					const document = this.getNodeParameter('gql', i) as string;
 					const variablesRaw = this.getNodeParameter('variables', i) as string;
 
-					const gqlRes = await c6ApiCall.call(this, {
+					const gqlRes = await consolidateApiCall.call(this, {
 						query: document,
 						variables: JSON.parse(variablesRaw),
 					});
@@ -366,7 +366,7 @@ export class C6 implements INodeType {
 					}`,
 					variables,
 				};
-				data = (await c6ApiCall.call(this, body)).data.sendEmail;
+				data = (await consolidateApiCall.call(this, body)).data.sendEmail;
 			}
 
 			if (resource === 'appointment') {
@@ -435,7 +435,7 @@ export class C6 implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await c6ApiCall.call(this, body)).data.createCalendarEvent.calendarEventInstance;
+					data = (await consolidateApiCall.call(this, body)).data.createCalendarEvent.calendarEventInstance;
 				}
 
 				if (operation === 'update') {
@@ -530,7 +530,7 @@ export class C6 implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await c6ApiCall.call(this, body)).data.updateCalendarEvent.calendarEventInstance;
+					data = (await consolidateApiCall.call(this, body)).data.updateCalendarEvent.calendarEventInstance;
 				}
 
 				if (operation === 'delete') {
@@ -548,7 +548,7 @@ export class C6 implements INodeType {
         				}`,
 						variables,
 					};
-					data = (await c6ApiCall.call(this, body)).data.deleteCalendarEvent;
+					data = (await consolidateApiCall.call(this, body)).data.deleteCalendarEvent;
 				}
 			}
 

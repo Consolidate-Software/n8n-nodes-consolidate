@@ -1,17 +1,17 @@
 {
-	"node": "n8n-nodes-c6",
+	"node": "@consolidate/n8n-nodes-consolidate",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development", "Developer Tools"],
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://intern.consolidate.at/graphql/"
+				"url": "https://demo.consi.cloud/graphql/"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://intern.consolidate.at/graphql/"
+				"url": "https://demo.consi.cloud/graphql/"
 			}
 		]
 	}

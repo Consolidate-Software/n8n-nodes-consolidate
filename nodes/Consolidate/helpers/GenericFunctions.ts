@@ -11,11 +11,11 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
-export async function c6ApiCall(
+export async function consolidateApiCall(
 	this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
 	body: IDataObject,
 ): Promise<any> {
-	const baseUrl = (await this.getCredentials('c6Api'))?.baseUrl as string;
+	const baseUrl = (await this.getCredentials('consolidateApi'))?.baseUrl as string;
 
 	const options: IHttpRequestOptions = {
 		method: 'POST',
@@ -26,7 +26,7 @@ export async function c6ApiCall(
 	};
 
 	try {
-		const res = await this.helpers.httpRequestWithAuthentication.call(this, 'c6Api', options);
+		const res = await this.helpers.httpRequestWithAuthentication.call(this, 'consolidateApi', options);
 
 		if (res && Array.isArray(res.errors) && res.errors.length) {
 			const msg = res.errors
@@ -66,7 +66,7 @@ export async function getDataCollectionFromDataEntryId(
 		variables: { id },
 	};
 
-	return (await c6ApiCall.call(this, body)).data.dataEntry.dataCollection;
+	return (await consolidateApiCall.call(this, body)).data.dataEntry.dataCollection;
 }
 
 export function eventsExist(eventTypes: string[], currentEventTypes: string[]) {

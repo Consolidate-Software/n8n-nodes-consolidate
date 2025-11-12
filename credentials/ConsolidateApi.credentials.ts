@@ -6,12 +6,12 @@ import type {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class C6Api implements ICredentialType {
-	name = 'c6Api';
+export class ConsolidateApi implements ICredentialType {
+	name = 'consolidateApi';
 
-	displayName = 'C6 API';
+	displayName = 'Consolidate API';
 
-	icon: Icon = 'file:c6.svg';
+	icon: Icon = 'file:consolidate.svg';
 
 	documentationUrl = 'https://community.consolidate.eu/t/api-authentifizierung';
 

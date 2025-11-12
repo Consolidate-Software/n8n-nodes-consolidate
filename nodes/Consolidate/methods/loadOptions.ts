@@ -1,6 +1,6 @@
 import { ILoadOptionsFunctions, INodePropertyOptions, IDataObject } from 'n8n-workflow';
-import { c6ApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
-import { timezones } from '../TimeZones';
+import { consolidateApiCall, getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
+import { timezones } from '../helpers/TimeZones';
 
 // Fetch calendars where the user can create appointments.
 export async function getCalendars(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
@@ -14,7 +14,7 @@ export async function getCalendars(this: ILoadOptionsFunctions): Promise<INodePr
                 }
             }`;
 
-	const result = (await c6ApiCall.call(this, { query })) as {
+	const result = (await consolidateApiCall.call(this, { query })) as {
 		data?: {
 			calendars?: {
 				id: string;
@@ -48,7 +48,7 @@ export async function getDataCollections(
             }`,
 	};
 
-	const result = (await c6ApiCall.call(this, formsBody)) as {
+	const result = (await consolidateApiCall.call(this, formsBody)) as {
 		data?: { dataForms?: { dataCollection: string; displayName: string }[] };
 	};
 
@@ -70,7 +70,7 @@ export async function getDataCollectionsGlobalSearch(
             }`,
 	};
 
-	const result = (await c6ApiCall.call(this, formsBody)) as {
+	const result = (await consolidateApiCall.call(this, formsBody)) as {
 		data?: { dataForms?: { dataCollection: string; displayName: string }[] };
 	};
 
@@ -97,7 +97,7 @@ export async function getInvitableUsers(
             }`,
 	};
 
-	const result = (await c6ApiCall.call(this, body)) as {
+	const result = (await consolidateApiCall.call(this, body)) as {
 		data?: {
 			invitableUsers?: {
 				id: string;
@@ -123,7 +123,7 @@ export async function getMailboxes(this: ILoadOptionsFunctions): Promise<INodePr
             }`,
 	};
 
-	const result = (await c6ApiCall.call(this, body)) as {
+	const result = (await consolidateApiCall.call(this, body)) as {
 		data?: {
 			myMailboxes?: {
 				id: string;
@@ -160,7 +160,7 @@ export async function getMailboxAliases(
 		variables: { id: mailboxId },
 	};
 
-	const result = (await c6ApiCall.call(this, body)) as {
+	const result = (await consolidateApiCall.call(this, body)) as {
 		data?: { mailbox?: { aliases?: { email: string }[] } };
 	};
 
@@ -204,7 +204,7 @@ export async function getTypes(this: ILoadOptionsFunctions): Promise<INodeProper
 		variables: { dataCollection: dataCollection.trim() },
 	};
 
-	const result = (await c6ApiCall.call(this, body)) as {
+	const result = (await consolidateApiCall.call(this, body)) as {
 		data?: {
 			dataForm?: { types?: { key: string; displayName: string }[] };
 		};
