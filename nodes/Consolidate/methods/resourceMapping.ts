@@ -1,63 +1,63 @@
 import { IDataObject, ILoadOptionsFunctions, ResourceMapperFields } from 'n8n-workflow';
 import { getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import {
-	FieldMetaData,
-	DataForm,
-	getOptions,
-	isListArrayValue,
-	mapFieldTypesToN8n,
+  FieldMetaData,
+  DataForm,
+  getOptions,
+  isListArrayValue,
+  mapFieldTypesToN8n,
 } from '../helpers/DataEntryUtils';
 import { apiRequest } from '../transport';
 
 function getUniqueFields(result: { data?: { dataForm?: DataForm } }, typeIds: string[]) {
-	const typeAdditionalFields = (result.data?.dataForm?.types ?? [])
-		.filter((t) => typeIds.includes(t.key))
-		.flatMap((t) => t.additionalFields ?? []);
+  const typeAdditionalFields = (result.data?.dataForm?.types ?? [])
+    .filter((t) => typeIds.includes(t.key))
+    .flatMap((t) => t.additionalFields ?? []);
 
-	return [...(result.data?.dataForm?.fields ?? []), ...typeAdditionalFields];
+  return [...(result.data?.dataForm?.fields ?? []), ...typeAdditionalFields];
 }
 
 function getUniqueStatuses(result: { data?: { dataForm?: DataForm } }, typeIds: string[]) {
-	const typeStatuses = (result.data?.dataForm?.types ?? [])
-		.filter((t) => typeIds.includes(t.key))
-		.flatMap((t) => t.allowedStatus ?? []);
+  const typeStatuses = (result.data?.dataForm?.types ?? [])
+    .filter((t) => typeIds.includes(t.key))
+    .flatMap((t) => t.allowedStatus ?? []);
 
-	const allStatuses = [...(result.data?.dataForm?.allowedStatus ?? []), ...typeStatuses];
+  const allStatuses = [...(result.data?.dataForm?.allowedStatus ?? []), ...typeStatuses];
 
-	const uniqueStatuses = Object.values(
-		allStatuses.reduce<Record<string, (typeof allStatuses)[0]>>((acc, status) => {
-			if (status && status.id) acc[status.id] = status;
-			return acc;
-		}, {}),
-	);
+  const uniqueStatuses = Object.values(
+    allStatuses.reduce<Record<string, (typeof allStatuses)[0]>>((acc, status) => {
+      if (status && status.id) acc[status.id] = status;
+      return acc;
+    }, {}),
+  );
 
-	const orderedCategories = ['Todo', 'InProgress', 'Done'];
-	uniqueStatuses.sort((a, b) => {
-		const aIndex = orderedCategories.indexOf(a.category);
-		const bIndex = orderedCategories.indexOf(b.category);
-		return aIndex - bIndex;
-	});
+  const orderedCategories = ['Todo', 'InProgress', 'Done'];
+  uniqueStatuses.sort((a, b) => {
+    const aIndex = orderedCategories.indexOf(a.category);
+    const bIndex = orderedCategories.indexOf(b.category);
+    return aIndex - bIndex;
+  });
 
-	return uniqueStatuses;
+  return uniqueStatuses;
 }
 
 export async function getMappingColumns(
-	this: ILoadOptionsFunctions,
+  this: ILoadOptionsFunctions,
 ): Promise<ResourceMapperFields> {
-	let dataCollection = this.getCurrentNodeParameter('dataCollection') as string | undefined;
-	const ids = this.getCurrentNodeParameter('id') as IDataObject | undefined;
+  let dataCollection = this.getCurrentNodeParameter('dataCollection') as string | undefined;
+  const ids = this.getCurrentNodeParameter('id') as IDataObject | undefined;
 
-	if (ids) {
-		dataCollection = await getDataCollectionFromDataEntryId.call(this, ids);
-	}
-	if (!dataCollection) return { fields: [] };
+  if (ids) {
+    dataCollection = await getDataCollectionFromDataEntryId.call(this, ids);
+  }
+  if (!dataCollection) return { fields: [] };
 
-	const typesUi = this.getNodeParameter('types', {}) as IDataObject;
-	const typesList = Array.isArray(typesUi.typeValues) ? typesUi.typeValues : [];
-	const typeIds = typesList.map((f) => f.typeId);
+  const typesUi = this.getNodeParameter('types', {}) as IDataObject;
+  const typesList = Array.isArray(typesUi.typeValues) ? typesUi.typeValues : [];
+  const typeIds = typesList.map((f) => f.typeId);
 
-	const dataFormBody = {
-		query: `
+  const dataFormBody = {
+    query: `
             query FieldsForCollection($dataCollection: DataCollection!) {
                 dataForm(dataCollection: $dataCollection) {
                     allowedStatus {
@@ -103,42 +103,42 @@ export async function getMappingColumns(
                 }
             }
             `,
-		variables: { dataCollection },
-	};
+    variables: { dataCollection },
+  };
 
-	const result = (await apiRequest.call(this, dataFormBody)) as {
-		data?: {
-			dataForm?: DataForm;
-		};
-	};
+  const result = (await apiRequest.call(this, dataFormBody)) as {
+    data?: {
+      dataForm?: DataForm;
+    };
+  };
 
-	const uniqueStatuses = getUniqueStatuses(result, typeIds);
+  const uniqueStatuses = getUniqueStatuses(result, typeIds);
 
-	const uniqueFields = getUniqueFields(result, typeIds);
+  const uniqueFields = getUniqueFields(result, typeIds);
 
-	const fields = uniqueFields
-		.filter((f) => f.fieldType === 'Value')
-		.map((field) => {
-			const isListLabel =
-				field.selectionType !== 'Single' && isListArrayValue(field.valueType)
-					? 'provide values in JSON array'
-					: 'separate values with comma';
+  const fields = uniqueFields
+    .filter((f) => f.fieldType === 'Value')
+    .map((field) => {
+      const isListLabel =
+        field.selectionType !== 'Single' && isListArrayValue(field.valueType)
+          ? 'provide values in JSON array'
+          : 'separate values with comma';
 
-			return {
-				id: JSON.stringify({
-					key: field.key,
-					valueType: field.valueType,
-					selectionType: field.selectionType,
-				} as FieldMetaData),
-				displayName:
-					field.selectionType === 'Single' ? field.label : `${field.label} (list - ${isListLabel})`,
-				defaultMatch: field.key === 'id',
-				required: Boolean(field.required),
-				display: true,
-				type: mapFieldTypesToN8n(field.valueType, field.selectionType),
-				options: getOptions(field, uniqueStatuses),
-			};
-		});
+      return {
+        id: JSON.stringify({
+          key: field.key,
+          valueType: field.valueType,
+          selectionType: field.selectionType,
+        } as FieldMetaData),
+        displayName:
+          field.selectionType === 'Single' ? field.label : `${field.label} (list - ${isListLabel})`,
+        defaultMatch: field.key === 'id',
+        required: Boolean(field.required),
+        display: true,
+        type: mapFieldTypesToN8n(field.valueType, field.selectionType),
+        options: getOptions(field, uniqueStatuses),
+      };
+    });
 
-	return { fields };
+  return { fields };
 }
