@@ -1,18 +1,14 @@
 # @consolidate/n8n-nodes-consolidate
 
-This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
+> **Beta Notice**
+>
+> This node is in **beta** and under active development. Features and behavior may change. Please report any issues or feedback.
 
-_App/service name_ is _one or two sentences describing the service this node integrates with_.
+This is an n8n community node for integrating with the **Consolidate API** in your n8n workflows.
+
+This node allows managing data entry, appointments, emails, and custom queries through the Consolidate API. With it you can automate and connect these operations within your n8n workflows.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
-
-[Installation](#installation)
-[Operations](#operations)
-[Credentials](#credentials)
-[Compatibility](#compatibility)
-[Usage](#usage)
-[Resources](#resources)
-[Version history](#version-history)
 
 ## Installation
 
@@ -20,27 +16,37 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-_List the operations supported by your node._
+This node supports the following operations:
+
+- **Data Entry**: Create, update, and manage data entries in Consolidate.
+- **Appointment**: Schedule, update, and manage appointments.
+- **Email**: Send and manage emails via Consolidate.
+- **Custom API Call**: Execute custom GraphQL queries against the Consolidate API.
 
 ## Credentials
 
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+To use this node, you must configure the following credentials in n8n:
+
+- **Base URL**: The URL of your Consolidate instance (e.g., `https://{your instance}.consi.cloud/`). Do not include `/graphql` at the end.
+- **API Key**: Your Consolidate API Key. This is used for authenticating API requests.
+
+The node authenticates using the `X-API-KEY` header. You can create your API key in your Consolidate account.
+
+For more details, see the [Consolidate API authentication documentation](https://community.consolidate.eu/t/consolidate-api-authentifizierung).
 
 ## Compatibility
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
+- Minimum n8n version: 1.0.0
+- Tested with the latest n8n versions
+- No known incompatibilities at this time
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+Add the Consolidate node to your workflow and configure the desired operation and resource. For advanced use cases, use the Custom API Call to send raw GraphQL queries.
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+For general n8n usage, see the [Try it out](https://docs.n8n.io/try-it-out/) documentation.
 
 ## Resources
 
-* [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* _Link to app/service documentation._
-
-## Version history
-
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
+- [Consolidate API documentation](https://community.consolidate.eu/t/consolidate-api-ueberblick)
