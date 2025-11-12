@@ -10,7 +10,6 @@ export const dataEntryOperations: INodeProperties[] = [
 		displayOptions: { show: { resource: ['dataEntry'] } },
 		options: [
 			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Custom', value: 'custom', action: 'Custom query' },
 			{ name: 'Delete', value: 'delete', action: 'Delete' },
 			{ name: 'Get by ID', value: 'getById', action: 'Get by ID' },
 			{ name: 'Search', value: 'search', action: 'Search' },
@@ -296,50 +295,5 @@ export const dataEntryFields: INodeProperties[] = [
 			},
 		],
 		displayOptions: { show: { resource: ['dataEntry'], operation: ['delete'] } },
-	},
-
-	/* -------------------------------------------------------------------------- */
-	/*                             dataEntry:custom                               */
-	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'GraphQL Document',
-		name: 'gql',
-		type: 'string',
-		default: '',
-		required: true,
-		typeOptions: { rows: 10 },
-		placeholder:
-			'mutation ($input: CreateDataEntryInput!) { createDataEntry(input: $input) { dataEntry { ID displayName } } }',
-		description:
-			'Paste a full GraphQL query or mutation (including variables definition). ' +
-			'Example:\n' +
-			'```\n' +
-			'mutation ($input: CreateDataEntryInput!) {\n' +
-			'  createDataEntry(input: $input) {\n' +
-			'    dataEntry { id displayName }\n' +
-			'  }\n' +
-			'}\n' +
-			'```\n',
-		displayOptions: { show: { resource: ['dataEntry'], operation: ['custom'] } },
-	},
-	{
-		displayName: 'Variables (JSON)',
-		name: 'variables',
-		type: 'json',
-		default: '{}',
-		typeOptions: { rows: 6 },
-		description:
-			'GraphQL variables JSON. You can use n8n expressions. ' +
-			'Example:\n' +
-			'```\n' +
-			'{\n' +
-			'  "input": {\n' +
-			'    "dataCollection": "Task",\n' +
-			'    "fields": [ { "key": "subject", "value": { "text": "Hello" } } ],\n' +
-			'    "types": ["Bug"]\n' +
-			'  }\n' +
-			'}\n' +
-			'```\n',
-		displayOptions: { show: { resource: ['dataEntry'], operation: ['custom'] } },
 	},
 ];

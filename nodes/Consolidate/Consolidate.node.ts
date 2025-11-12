@@ -14,6 +14,7 @@ import { appointmentFields, appointmentOperations } from './actions/AppointmentD
 import { FieldMetaData, FieldValueType, getFieldValue } from './helpers/DataEntryUtils';
 import { loadOptions, resourceMapping } from './methods';
 import { apiRequest } from './transport';
+import { customQueryFields, customQueryOperations } from './actions/CustomQueryDescription';
 
 export class Consolidate implements INodeType {
 	description: INodeTypeDescription = {
@@ -51,6 +52,7 @@ export class Consolidate implements INodeType {
 					{ name: 'Data Entry', value: 'dataEntry' },
 					{ name: 'Appointment', value: 'appointment' },
 					{ name: 'Email', value: 'email' },
+					{ name: 'Custom API Call', value: 'custom' },
 				],
 			},
 
@@ -65,6 +67,10 @@ export class Consolidate implements INodeType {
 			// APPOINTMENT
 			...appointmentOperations,
 			...appointmentFields,
+
+			// CUSTOM
+			...customQueryOperations,
+			...customQueryFields,
 		],
 	};
 

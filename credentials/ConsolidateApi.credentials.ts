@@ -35,7 +35,7 @@ export class ConsolidateApi implements ICredentialType {
 			typeOptions: { password: true },
 		},
 	];
-
+	
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
