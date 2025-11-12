@@ -1,4 +1,4 @@
-# @consolidate/n8n-nodes-consolidate
+# @consolidate-software/n8n-nodes-consolidate
 
 > **Beta Notice**
 >
