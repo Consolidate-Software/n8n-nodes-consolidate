@@ -1,19 +1,19 @@
 import {
   type IDataObject,
   type IExecuteFunctions,
-  type ILoadOptionsFunctions,
-  type IWebhookFunctions,
   type IHookFunctions,
   type IHttpRequestOptions,
-  NodeOperationError,
-  NodeApiError,
+  type ILoadOptionsFunctions,
+  type IWebhookFunctions,
   JsonObject,
+  NodeApiError,
+  NodeOperationError,
 } from 'n8n-workflow';
 
 export async function apiRequest(
   this: IExecuteFunctions | IWebhookFunctions | IHookFunctions | ILoadOptionsFunctions,
   body: IDataObject,
-){
+) {
   const baseUrl = (await this.getCredentials('consolidateApi'))?.baseUrl as string;
 
   const options: IHttpRequestOptions = {
@@ -25,7 +25,11 @@ export async function apiRequest(
   };
 
   try {
-    const res = await this.helpers.httpRequestWithAuthentication.call(this, 'consolidateApi', options);
+    const res = await this.helpers.httpRequestWithAuthentication.call(
+      this,
+      'consolidateApi',
+      options,
+    );
 
     if (res && Array.isArray(res.errors) && res.errors.length) {
       const msg = res.errors

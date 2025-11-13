@@ -40,6 +40,11 @@ export type Status = {
   rank: number;
 };
 
+export type UserOption = {
+  id: string;
+  displayName: string;
+};
+
 export type FieldValueType =
   | 'Text'
   | 'Number'
@@ -61,7 +66,7 @@ export type FieldValueType =
   | 'Custom';
 
 const PRIORITY_OPTIONS = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
-export const getOptions = (field: Field, status: Status[]) => {
+export const getOptions = (field: Field, status: Status[], users: UserOption[]) => {
   switch (field.valueType) {
     case 'Priority':
       return PRIORITY_OPTIONS.map((p) => ({ name: p, value: p }));
@@ -69,6 +74,8 @@ export const getOptions = (field: Field, status: Status[]) => {
       return field.comboBoxOptions?.map((o) => ({ name: o.value, value: o.id }));
     case 'Status':
       return status.map((s) => ({ name: s.name, value: s.id }));
+    case 'User':
+      return users.map((u) => ({ name: u.displayName, value: u.id }));
     default:
       return undefined;
   }
@@ -193,7 +200,6 @@ export function mapFieldTypesToN8n(
     case 'text':
     case 'richtext':
     case 'emailaddress':
-    case 'user':
     case 'dataentry':
     case 'tag':
     case 'address':
@@ -204,6 +210,7 @@ export function mapFieldTypesToN8n(
     case 'priority':
     case 'combobox':
     case 'status':
+    case 'user':
       return 'options';
 
     case 'number':

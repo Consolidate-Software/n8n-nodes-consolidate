@@ -1,12 +1,13 @@
 import { IDataObject, ILoadOptionsFunctions, ResourceMapperFields } from 'n8n-workflow';
-import { getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import {
-  FieldMetaData,
   DataForm,
+  FieldMetaData,
   getOptions,
   isListArrayValue,
   mapFieldTypesToN8n,
+  UserOption,
 } from '../helpers/DataEntryUtils';
+import { getDataCollectionFromDataEntryId } from '../helpers/GenericFunctions';
 import { apiRequest } from '../transport';
 
 function getUniqueFields(result: { data?: { dataForm?: DataForm } }, typeIds: string[]) {
@@ -79,6 +80,11 @@ export async function getMappingColumns(
                         ...FieldsFragment
                     }
                 }
+
+                activeUsers {
+                    id
+                    displayName
+                }
             }
             fragment TaskStatusFragment on TaskStatus {
                 id
@@ -109,10 +115,12 @@ export async function getMappingColumns(
   const result = (await apiRequest.call(this, dataFormBody)) as {
     data?: {
       dataForm?: DataForm;
+      activeUsers?: UserOption[];
     };
   };
 
   const uniqueStatuses = getUniqueStatuses(result, typeIds);
+  const users = result.data?.activeUsers ?? [];
 
   const uniqueFields = getUniqueFields(result, typeIds);
 
@@ -136,8 +144,8 @@ export async function getMappingColumns(
         required: Boolean(field.required),
         display: true,
         type: mapFieldTypesToN8n(field.valueType, field.selectionType),
-        options: getOptions(field, uniqueStatuses),
-      };
+        options: getOptions(field, uniqueStatuses, users),
+      } satisfies ResourceMapperFields['fields'][number];
     });
 
   return { fields };
