@@ -1,23 +1,11 @@
-import { INodeProperties } from 'n8n-workflow';
+import {
+  type IExecuteFunctions,
+  type INodeExecutionData,
+  type INodeProperties,
+} from 'n8n-workflow';
+import { apiRequest } from '../../transport';
 
-export const customQueryOperations: INodeProperties[] = [
-  {
-    displayName: 'Operation',
-    name: 'operation',
-    type: 'options',
-    default: 'custom',
-    noDataExpression: true,
-    displayOptions: { show: { resource: ['custom'] } },
-    options: [
-      { name: 'Custom API Call', value: 'custom', action: 'Custom API call' },
-    ],
-  },
-];
-
-export const customQueryFields: INodeProperties[] = [
-  /* -------------------------------------------------------------------------- */
-  /*                             custom:custom                               */
-  /* -------------------------------------------------------------------------- */
+export const description: INodeProperties[] = [
   {
     displayName: 'GraphQL Document',
     name: 'gql',
@@ -37,7 +25,7 @@ export const customQueryFields: INodeProperties[] = [
       '  }\n' +
       '}\n' +
       '```\n',
-    displayOptions: { show: { resource: ['custom'], operation: ['custom'] } },
+    displayOptions: { show: { resource: ['customQuery'], operation: ['customQuery'] } },
   },
   {
     displayName: 'Variables (JSON)',
@@ -57,6 +45,32 @@ export const customQueryFields: INodeProperties[] = [
       '  }\n' +
       '}\n' +
       '```\n',
-    displayOptions: { show: { resource: ['custom'], operation: ['custom'] } },
+    displayOptions: { show: { resource: ['customQuery'], operation: ['customQuery'] } },
   },
 ];
+
+export async function execute(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const document = this.getNodeParameter('gql', i) as string;
+    const variablesRaw = this.getNodeParameter('variables', i) as string;
+
+    const gqlRes = await apiRequest.call(this, {
+      query: document,
+      variables: JSON.parse(variablesRaw),
+    });
+
+    const out = Array.isArray(gqlRes) ? gqlRes : [gqlRes ?? {}];
+
+    const exec = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(out), {
+      itemData: { item: i },
+    });
+    returnData.push(...exec);
+  }
+
+  return returnData;
+}

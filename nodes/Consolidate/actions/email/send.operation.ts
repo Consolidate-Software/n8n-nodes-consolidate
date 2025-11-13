@@ -1,21 +1,13 @@
-import { INodeProperties } from 'n8n-workflow';
+import {
+  IDataObject,
+  NodeOperationError,
+  type IExecuteFunctions,
+  type INodeExecutionData,
+  type INodeProperties,
+} from 'n8n-workflow';
+import { apiRequest } from '../../transport';
 
-export const emailOperations: INodeProperties[] = [
-  {
-    displayName: 'Operation',
-    name: 'operation',
-    type: 'options',
-    default: 'send',
-    noDataExpression: true,
-    displayOptions: { show: { resource: ['email'] } },
-    options: [{ name: 'Send', value: 'send', action: 'Send an email' }],
-  },
-];
-
-export const emailFields: INodeProperties[] = [
-  /* -------------------------------------------------------------------------- */
-  /*                             email:send                                     */
-  /* -------------------------------------------------------------------------- */
+export const description: INodeProperties[] = [
   {
     displayName: 'From Mailbox Name or ID',
     name: 'fromMailboxId',
@@ -165,3 +157,75 @@ export const emailFields: INodeProperties[] = [
     displayOptions: { show: { resource: ['email'], operation: ['send'] } },
   },
 ];
+
+export async function execute(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const fromMailboxId = this.getNodeParameter('fromMailboxId', i) as string;
+    const fromAlias = this.getNodeParameter('fromAlias', i) as string;
+    const subject = this.getNodeParameter('subject', i) as string;
+    const htmlText = this.getNodeParameter('htmlBody', i) as string;
+
+    type RecipientInput = {
+      email: string;
+      name?: string;
+    };
+
+    type ToCollection = { toRecipient?: RecipientInput[] };
+    type CcCollection = { ccRecipient?: RecipientInput[] };
+    type BccCollection = { bccRecipient?: RecipientInput[] };
+
+    const toFC = this.getNodeParameter('to', i, {}) as ToCollection;
+    const ccFC = this.getNodeParameter('cc', i, {}) as CcCollection;
+    const bccFC = this.getNodeParameter('bcc', i, {}) as BccCollection;
+
+    const mapRecipients = (arr?: RecipientInput[]) =>
+      (Array.isArray(arr) ? arr : [])
+        .filter((r) => !!r?.email)
+        .map((r) => ({ email: r.email, name: r.name || undefined }));
+
+    const to = mapRecipients(toFC.toRecipient);
+    const cc = mapRecipients(ccFC.ccRecipient);
+    const bcc = mapRecipients(bccFC.bccRecipient);
+
+    if (!to.length) {
+      throw new NodeOperationError(this.getNode(), 'Please provide at least one "To" recipient.', {
+        itemIndex: i,
+      });
+    }
+
+    const variables = {
+      input: {
+        from: { mailbox: fromMailboxId, alias: fromAlias || undefined },
+        to,
+        cc: cc.length ? cc : undefined,
+        bcc: bcc.length ? bcc : undefined,
+        subject,
+        content: { htmlText },
+      },
+    };
+
+    const body = {
+      query: `
+          mutation($input: SendEmailInput!) {
+            sendEmail(input:$input) {
+              succeeded
+            }
+          }`,
+      variables,
+    };
+    const data = (await apiRequest.call(this, body)).data.sendEmail;
+
+    const executionData = this.helpers.constructExecutionMetaData(
+      this.helpers.returnJsonArray(data as IDataObject | IDataObject[]),
+      { itemData: { item: i } },
+    );
+    returnData.push(...executionData);
+  }
+
+  return returnData;
+}
