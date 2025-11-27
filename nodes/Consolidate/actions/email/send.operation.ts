@@ -213,7 +213,7 @@ export async function execute(
       query: `
           mutation($input: SendEmailInput!) {
             sendEmail(input:$input) {
-              succeeded
+              id
             }
           }`,
       variables,
