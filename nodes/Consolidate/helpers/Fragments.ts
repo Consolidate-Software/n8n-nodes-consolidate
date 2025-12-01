@@ -169,7 +169,6 @@ export const APPOINTMENT_FRAGMENTS = `
     }
 
     fragment AppointmentFragment on Appointment {
-        id
         event {
             id
             title
