@@ -47,9 +47,11 @@ export async function execute(
     const ids = idList.map((f) => f.id);
 
     const query = `
-            mutation DeleteDE($input: DeleteDataEntriesPermanentlyInput!) {
-              deleteDataEntriesPermanently(input: $input) {
-                success
+            mutation DeleteDE($input: MoveToTrashInput!) {
+              moveToTrash(input: $input) {
+                dataEntry {
+                  id
+                }
               }
             }`;
 
