@@ -1,6 +1,6 @@
 {
   "name": "@consolidate-software/n8n-nodes-consolidate",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Consolidate n8n community nodes package",
   "license": "MIT",
   "homepage": "https://www.consolidate.eu",
