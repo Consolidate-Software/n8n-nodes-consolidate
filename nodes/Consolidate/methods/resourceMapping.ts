@@ -124,6 +124,9 @@ export async function getMappingColumns(
 
   const uniqueFields = getUniqueFields(result, typeIds);
 
+  const resource = this.getCurrentNodeParameter('resource');
+  const operation = this.getCurrentNodeParameter('operation');
+
   const fields = uniqueFields
     .filter((f) => f.fieldType === 'Value')
     .map((field) => {
@@ -131,6 +134,9 @@ export async function getMappingColumns(
         field.selectionType !== 'Single' && isListArrayValue(field.valueType)
           ? 'provide values in JSON array'
           : 'separate values with comma';
+
+      const required =
+        resource === 'dataEntry' && operation === 'update' ? false : Boolean(field.required);
 
       return {
         id: JSON.stringify({
@@ -141,7 +147,7 @@ export async function getMappingColumns(
         displayName:
           field.selectionType === 'Single' ? field.label : `${field.label} (list - ${isListLabel})`,
         defaultMatch: field.key === 'id',
-        required: Boolean(field.required),
+        required: required,
         display: true,
         type: mapFieldTypesToN8n(field.valueType, field.selectionType),
         options: getOptions(field, uniqueStatuses, users),
